@@ -1,0 +1,7 @@
+8=com.manageengine.airlab.FileUtil;transmitFile
+9=com.manageengine.airlab.FileUtil;mergeFiles
+10=com.manageengine.airlab.server.ClassifierExecutor;trainClassifier
+11=com.manageengine.airlab.server.ClassifierExecutor;deltaTrainClassifier
+12=com.manageengine.airlab.server.ClassifierExecutor;getLastTrained
+20=com.manageengine.airlab.server.ClassifierExecutor;predictCategory
+30=com.manageengine.airlab.FeedbackUtil;updateTrainer

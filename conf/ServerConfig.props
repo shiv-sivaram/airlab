@@ -1,0 +1,8 @@
+#Server Port
+PORT=8888
+
+#Default confidence algorithm to use
+DefaultConfidenceAlgo=com.manageengine.airlab.DefaultConfidenceAlgoImpl
+
+#Category to signify 'other' category in classification algorithm
+Category.other=other
