@@ -1,4 +1,4 @@
-package com.manageengine.airlab.client;
+package com.me.airlab.client;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -10,8 +10,8 @@ import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.Arrays;
 
-import com.manageengine.airlab.FeedbackData;
-import com.manageengine.airlab.TCPUtil;
+import com.me.airlab.FeedbackData;
+import com.me.airlab.TCPUtil;
 
 public class ClientTest {
 

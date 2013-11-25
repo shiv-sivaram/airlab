@@ -1,4 +1,4 @@
-package com.manageengine.airlab;
+package com.me.airlab;
 
 import java.io.Serializable;
 

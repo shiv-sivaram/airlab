@@ -1,4 +1,4 @@
-package com.manageengine.airlab;
+package com.me.airlab;
 
 public class DefaultConfidenceAlgoImpl implements ConfidenceAlgo {
 	

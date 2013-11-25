@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.manageengine.airlab.server;
+package com.me.airlab.server;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -15,8 +15,8 @@ import java.net.ServerSocket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.manageengine.airlab.StatusData;
-import com.manageengine.airlab.TCPUtil;
+import com.me.airlab.StatusData;
+import com.me.airlab.TCPUtil;
 
 /**
  * @author Sivanand
@@ -69,7 +69,7 @@ public class TCPServer {
 
 	private static TCPServer tcpServer = new TCPServer();
 	private ServerSocket server = null;
-	private Logger logger = Logger.getLogger(com.manageengine.airlab.server.TCPServer.class.getName());
+	private Logger logger = Logger.getLogger(com.me.airlab.server.TCPServer.class.getName());
 
 	class ClientConnection extends Thread {
 

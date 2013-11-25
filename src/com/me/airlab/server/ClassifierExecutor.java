@@ -1,4 +1,4 @@
-package com.manageengine.airlab.server;
+package com.me.airlab.server;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -9,10 +9,10 @@ import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.manageengine.airlab.FeedbackUtil;
-import com.manageengine.airlab.StatusData;
-import com.manageengine.airlab.TCPUtil;
-import com.manageengine.airlab.classifier.Classifier;
+import com.me.airlab.FeedbackUtil;
+import com.me.airlab.StatusData;
+import com.me.airlab.TCPUtil;
+import com.me.airlab.classifier.Classifier;
 
 /**
  * @author Sivanand
@@ -171,5 +171,5 @@ public class ClassifierExecutor {
 	private final String lastTrainedFileName = "data" + File.separator + "LastTrained.props";
 	private Properties lastTrained = null;
 	
-	private Logger logger = Logger.getLogger(com.manageengine.airlab.server.ClassifierExecutor.class.getName());
+	private Logger logger = Logger.getLogger(com.me.airlab.server.ClassifierExecutor.class.getName());
 }

@@ -1,4 +1,4 @@
-package com.manageengine.airlab.classifier;
+package com.me.airlab.classifier;
 
 import java.io.BufferedOutputStream;
 import java.io.FileInputStream;

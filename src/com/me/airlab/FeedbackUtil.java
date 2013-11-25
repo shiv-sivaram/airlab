@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.manageengine.airlab;
+package com.me.airlab;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -106,5 +106,5 @@ public class FeedbackUtil {
 	private final String confidenceAlgosFileName = "conf" + File.separator + "ConfidenceAlgos.props";
 	private Properties thresholdProps = null;
 	private Properties confidenceAlgos = null;
-	private Logger logger = Logger.getLogger(com.manageengine.airlab.FeedbackUtil.class.getName());
+	private Logger logger = Logger.getLogger(com.me.airlab.FeedbackUtil.class.getName());
 }

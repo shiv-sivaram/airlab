@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.manageengine.airlab.client;
+package com.me.airlab.client;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -19,9 +19,9 @@ import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.manageengine.airlab.FeedbackData;
-import com.manageengine.airlab.TCPUtil;
-import com.manageengine.airlab.TCPUtil.HeaderLengths;
+import com.me.airlab.FeedbackData;
+import com.me.airlab.TCPUtil;
+import com.me.airlab.TCPUtil.HeaderLengths;
 
 /**
  * @author Sivanand
@@ -428,5 +428,5 @@ public class ClientClassifier {
 	
 	private String host = null;
 	private int port = 0;
-	private Logger logger = Logger.getLogger(com.manageengine.airlab.client.ClientClassifier.class.getName());
+	private Logger logger = Logger.getLogger(com.me.airlab.client.ClientClassifier.class.getName());
 }

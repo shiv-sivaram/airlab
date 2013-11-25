@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.manageengine.airlab;
+package com.me.airlab;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -122,5 +122,5 @@ public class FileUtil {
 		return fileName;
 	}
 	
-	private Logger logger = Logger.getLogger(com.manageengine.airlab.FileUtil.class.getName());
+	private Logger logger = Logger.getLogger(com.me.airlab.FileUtil.class.getName());
 }
