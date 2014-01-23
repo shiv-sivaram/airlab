@@ -20,7 +20,7 @@ import opennlp.tools.util.PlainTextByLineStream;
 public class Classifier {
 	
 	public void train(String inputFile) {
-		train(inputFile, inputFile+".bin");
+		train(inputFile, inputFile+".airltrained");
 	}
 	
 	public void train(String inputFile, String outputFile) {
@@ -35,14 +35,16 @@ public class Classifier {
 		
 		DoccatModel model = null;
 
+		System.out.println("IN: "+inputFile);
+		System.out.println("Out: "+outputFile);
 		InputStream dataIn = null;
 		try {
 			
 		  dataIn = new FileInputStream(inputFile);
-		  ObjectStream<String> lineStream =
-				new PlainTextByLineStream(dataIn, encoding);
+		  ObjectStream<String> lineStream =	new PlainTextByLineStream(dataIn, encoding);
 		  ObjectStream<DocumentSample> sampleStream = new DocumentSampleStream(lineStream);
 
+		  System.out.println("SS: "+sampleStream);
 		  model = DocumentCategorizerME.train(languageCode, sampleStream);
 		}
 		catch (IOException e) {

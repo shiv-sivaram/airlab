@@ -43,7 +43,18 @@ public class ClientClassifier {
 		if(mergeFiles(filePath)) {
 			logger.log(Level.INFO, "Files merged on server");
 		}
-		return train(moduleName, filePath);
+		return train(moduleName, filePath, TCPUtil.Command.TRAIN_CLASSIFIER);
+	}
+	
+	public long trainMultiClassifier(String moduleName, String filePath) throws Exception {
+		
+		if(sendFile(filePath)) {
+			logger.log(Level.INFO, "Files chunked and sent to server");
+		}
+		if(mergeFiles(filePath)) {
+			logger.log(Level.INFO, "Files merged on server");
+		}
+		return train(moduleName, filePath, TCPUtil.Command.TRAIN_MULTI_CLASSIFIER);
 	}
 	
 	public String predictCategory(String moduleName, File textFile) throws Exception {
@@ -141,7 +152,7 @@ public class ClientClassifier {
 		return 0L;
 	}
 	
-	private long train(String moduleName, String filePath) throws Exception {
+	private long train(String moduleName, String filePath, int trainCommand) throws Exception {
 		
 		Socket socket = null;
 		BufferedInputStream in = null;
@@ -155,7 +166,7 @@ public class ClientClassifier {
 			in = new BufferedInputStream(socket.getInputStream());
 			out = new BufferedOutputStream(socket.getOutputStream());
 			
-			out.write(TCPUtil.getCommandBytes(TCPUtil.Command.TRAIN_CLASSIFIER));
+			out.write(TCPUtil.getCommandBytes(trainCommand));
 			byte [] fileNameBytes = TCPUtil.getFileNameBytes(fileName);
 			byte [] moduleNameBytes = TCPUtil.getModuleNameBytes(moduleName);
 			out.write(TCPUtil.getPayloadLengthBytes(fileNameBytes.length + moduleNameBytes.length));

@@ -26,7 +26,14 @@ public class ClientTest {
 		//train();
 		//predict();
 		//getLastTrained();
-		sendFeedback();
+		//sendFeedback();
+		trainMulti();
+	}
+	
+	public void trainMulti() throws Exception {
+
+		String clientFile = "/Users/sivanand-0290/Scratchpad/data.csv";
+		System.out.println(cc.trainMultiClassifier("Request", clientFile));
 	}
 	
 	public void predict() throws Exception {

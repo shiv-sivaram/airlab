@@ -1,14 +1,21 @@
 package com.me.airlab.server;
 
 import java.io.BufferedInputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.me.airlab.CSVReader;
 import com.me.airlab.FeedbackUtil;
 import com.me.airlab.StatusData;
 import com.me.airlab.TCPUtil;
@@ -45,7 +52,7 @@ public class ClassifierExecutor {
 		String module = createRawFile(payload, true);
 		return train(module);
 	}
-
+	
 	private StatusData train(String module) {
 
 		long threadId = Thread.currentThread().getId();
@@ -62,6 +69,89 @@ public class ClassifierExecutor {
 		
 		return new StatusData(TCPUtil.Status.OK, String.valueOf(lastTrainedTime));
 	}
+
+	public StatusData trainMultiClassifier(File payload) {
+
+		String module = createRawFile(payload, true);
+		return trainMulti(module);
+	}
+
+	public StatusData deltaTrainMultiClassifier(File payload) {
+
+		String module = createRawFile(payload, false);
+		return trainMulti(module);
+	}
+
+	private StatusData trainMulti(String module) {
+		
+		FileReader fReader = null;
+		PrintWriter[] submodules = null;
+		int numSubmodules = 0;
+		Vector headers = null;
+		CSVReader csv = null;
+				
+		try {
+			
+		 fReader = new FileReader("data" + File.separator + "raw" + File.separator + module + ".airlraw");
+			csv = new CSVReader(fReader);
+			headers = csv.getAllFieldsInLine();
+			
+			numSubmodules = headers.size() - 1;
+			submodules = new PrintWriter[numSubmodules];
+			for(int i=0;i<numSubmodules;i++) {
+				submodules[i] = new PrintWriter(new FileWriter("data" + File.separator + "raw" + File.separator + module + "__" + headers.get(i) + ".airlraw"));
+			}
+			
+			Vector dataRow = csv.getAllFieldsInLine();
+			while(dataRow != null) {
+				
+				for(int i=0;i<numSubmodules;i++) {
+					submodules[i].println(dataRow.get(i) + " " + dataRow.get(numSubmodules));
+				}
+				try {
+					dataRow = csv.getAllFieldsInLine();
+				} catch(EOFException eof) {
+					dataRow = null;
+				}
+			}
+			csv.close();
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			
+			for(int i=0;i<numSubmodules;i++) {
+				try {
+					submodules[i].close();
+				} catch(Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+			try {
+				csv.close();
+				fReader.close();
+			} catch(Exception ex) {
+				ex.printStackTrace();
+			}
+		}
+		
+		long threadId = Thread.currentThread().getId();
+		logger.log(Level.INFO, "["+threadId+"]Training started");	
+		
+		long lastTrainedTime = 0L;
+		Classifier c = new Classifier();
+		
+		for(int i=0;i<numSubmodules;i++) {
+			c.train("data" + File.separator + "raw" + File.separator + module + "__" + headers.get(i) + ".airlraw", "data" + File.separator + "trained" + File.separator + module + "__" + headers.get(i) + ".airltrained");
+		}
+		
+		logger.log(Level.INFO, "["+threadId+"]Training done");
+		
+		lastTrainedTime = System.currentTimeMillis();
+		setLastTrained(module, lastTrainedTime);
+		
+		return new StatusData(TCPUtil.Status.OK, String.valueOf(lastTrainedTime));
+	}
+
 	
 	public StatusData getLastTrained(File payload) {
 		

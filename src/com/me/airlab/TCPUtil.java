@@ -198,6 +198,8 @@ public final class TCPUtil {
 		public static final int TRAIN_CLASSIFIER = 10;
 		public static final int DELTA_TRAIN_CLASSIFIER = 11;
 		public static final int GET_LAST_TRAINED = 12;
+		public static final int TRAIN_MULTI_CLASSIFIER = 13;
+		public static final int DELTA_TRAIN_MULTI_CLASSIFIER = 14;
 		public static final int TRANSMIT_FEEDBACK = 30;
 		public static final int PREDICT_CATEGORY = 20;
 		
