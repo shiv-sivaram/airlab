@@ -1,17 +1,8 @@
 package com.me.airlab.client;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.InputStreamReader;
-import java.net.Socket;
-import java.util.Arrays;
 
 import com.me.airlab.FeedbackData;
-import com.me.airlab.TCPUtil;
 
 public class ClientTest {
 
@@ -27,19 +18,16 @@ public class ClientTest {
 		//predict();
 		//getLastTrained();
 		//sendFeedback();
-		trainMulti();
-	}
-	
-	public void trainMulti() throws Exception {
-
-		String clientFile = "/Users/sivanand-0290/Scratchpad/data.csv";
-		System.out.println(cc.trainMultiClassifier("Request", clientFile));
+		
+		//trainMulti();
+		predictMulti();
+		//sendMultiFeedback();
 	}
 	
 	public void predict() throws Exception {
 		
-		String clientFile = "/Users/sivanand-0290/Scratchpad/predict.txt";
-		System.out.println(cc.predictCategory("Category", clientFile));
+		File clientFile = new File("/Users/sivanand-0290/Scratchpad/predict.txt");
+		System.out.println(cc.predictCategory("Category", clientFile, "Other"));
 	}
 	
 public void getLastTrained() throws Exception {
@@ -57,6 +45,26 @@ public void getLastTrained() throws Exception {
 		
 		FeedbackData data = new FeedbackData(100, 80, 10);
 		cc.sendFeedback("Category", data);
+	}	
+	
+	public void trainMulti() throws Exception {
+
+		String clientFile = "/Users/sivanand-0290/Scratchpad/data.csv";
+		System.out.println(cc.trainMultiClassifier("Request", clientFile));
+	}
+	
+	public void predictMulti() throws Exception {
+		
+		File clientFile = new File("/Users/sivanand-0290/Scratchpad/predict.txt");
+		System.out.println(cc.predictMultiCategory("Request", new String[]{"Category", "Tech"}, clientFile, new String[]{"Other", "Other"}));
+	}
+	
+	public void sendMultiFeedback() throws Exception {
+		
+		FeedbackData data[] = new FeedbackData[2];
+		data[0] = new FeedbackData(100, 80, 10);
+		data[1] = new FeedbackData(200, 180, 10);
+		cc.sendMultiFeedback("Request", new String[]{"Category", "Tech"}, data);
 	}
 	
 //	public void execute(int command, String clientFile) throws Exception {
@@ -121,6 +129,7 @@ public void getLastTrained() throws Exception {
 //	}
 
 	public static void main(String[] args) throws Exception {
+		
 		new ClientTest();
 	}
 }

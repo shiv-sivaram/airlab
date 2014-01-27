@@ -6,4 +6,6 @@
 13=com.me.airlab.server.ClassifierExecutor;trainMultiClassifier
 14=com.me.airlab.server.ClassifierExecutor;deltaTrainMultiClassifier
 20=com.me.airlab.server.ClassifierExecutor;predictCategory
+21=com.me.airlab.server.ClassifierExecutor;predictMultiCategories
 30=com.me.airlab.FeedbackUtil;updateTrainer
+31=com.me.airlab.FeedbackUtil;updateMultiTrainer

@@ -24,7 +24,7 @@ public class FeedbackUtil {
 		return feedbackUtil;
 	}
 	
-	private FeedbackUtil() {
+	public FeedbackUtil() {
 
 		thresholdProps = new Properties();
 		confidenceAlgos = new Properties();
@@ -98,6 +98,56 @@ public class FeedbackUtil {
 			return new Double(value);
 		}
 		return 0L;
+	}
+	
+	private double[] computeConfidenceScore(String moduleName, String [] submodules, FeedbackData [] data) {
+	
+		double [] returnValue = new double[submodules.length];
+		for(int i=0;i<submodules.length;i++) {
+			returnValue[i] = computeConfidenceScore(moduleName + "__" + submodules[i], data[i]);
+		}
+		return returnValue;
+	}
+	
+	private void setConfidenceScore(String moduleName, String [] submodules, double [] confidenceScore) {
+		
+		for(int i=0;i<submodules.length;i++) {
+			setConfidenceScore(moduleName + "__ " + submodules[i], confidenceScore[i]);
+		}
+	}
+	
+	public double[] getConfidenceScore(String moduleName, String [] submodules) {
+	
+		double [] returnValue = new double[submodules.length];
+		for(int i=0;i<submodules.length;i++) {
+			returnValue[i] = getConfidenceScore(moduleName + "__" + submodules[i]);
+		}
+		return returnValue;
+	}
+	
+	public StatusData updateMultiTrainer(File payload) {
+
+		BufferedInputStream in = null;
+		try {
+
+			in = new BufferedInputStream(new FileInputStream(payload));
+			String moduleName = TCPUtil.getStringModuleName(in);
+			ObjectInputStream ois = new ObjectInputStream(in);
+			String [] submodules = (String [])ois.readObject();
+			FeedbackData [] data = (FeedbackData [])ois.readObject();
+			setConfidenceScore(moduleName, submodules, computeConfidenceScore(moduleName, submodules, data));
+			
+			return new StatusData(200, "Confidence score updated");
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				in.close();
+			} catch(IOException io) {
+				io.printStackTrace();
+			}
+		}
+		return new StatusData(500, "Server error");
 	}
 	
 	private static FeedbackUtil feedbackUtil = new FeedbackUtil();

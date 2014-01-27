@@ -180,6 +180,7 @@ public final class TCPUtil {
 	public static final int BUFFER_LENGTH = 1024;
 	public static final long CHUNK_SIZE = 1024 * 1024;
 	public static final int RETRY_COUNT = 5;
+	public static final String FIELD_SEPARATOR = "##------##";
 	
 	public class HeaderLengths {
 	
@@ -200,9 +201,10 @@ public final class TCPUtil {
 		public static final int GET_LAST_TRAINED = 12;
 		public static final int TRAIN_MULTI_CLASSIFIER = 13;
 		public static final int DELTA_TRAIN_MULTI_CLASSIFIER = 14;
-		public static final int TRANSMIT_FEEDBACK = 30;
 		public static final int PREDICT_CATEGORY = 20;
-		
+		public static final int PREDICT_MULTI_CATEGORY = 21;
+		public static final int TRANSMIT_FEEDBACK = 30;
+		public static final int TRANSMIT_MULTI_FEEDBACK = 31;
 	}
 	
 	public class Status {

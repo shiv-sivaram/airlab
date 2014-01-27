@@ -1,19 +1,21 @@
 package com.me.airlab.server;
 
 import java.io.BufferedInputStream;
-import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.me.airlab.CSVReader;
 import com.me.airlab.FeedbackUtil;
@@ -81,78 +83,49 @@ public class ClassifierExecutor {
 		String module = createRawFile(payload, false);
 		return trainMulti(module);
 	}
-
+	
 	private StatusData trainMulti(String module) {
-		
+
 		FileReader fReader = null;
-		PrintWriter[] submodules = null;
-		int numSubmodules = 0;
-		Vector headers = null;
 		CSVReader csv = null;
-				
+
 		try {
-			
-		 fReader = new FileReader("data" + File.separator + "raw" + File.separator + module + ".airlraw");
+
+			fReader = new FileReader("data" + File.separator + "raw" + File.separator + module + ".airlraw");
 			csv = new CSVReader(fReader);
-			headers = csv.getAllFieldsInLine();
-			
-			numSubmodules = headers.size() - 1;
-			submodules = new PrintWriter[numSubmodules];
-			for(int i=0;i<numSubmodules;i++) {
-				submodules[i] = new PrintWriter(new FileWriter("data" + File.separator + "raw" + File.separator + module + "__" + headers.get(i) + ".airlraw"));
+			Vector headers = csv.getAllFieldsInLine();
+
+			String[] submodules = new String[headers.size() - 1];
+			for(int i = 0;i < headers.size() - 1;i++) {
+				submodules[i] = (String) headers.elementAt(i);
 			}
-			
-			Vector dataRow = csv.getAllFieldsInLine();
-			while(dataRow != null) {
-				
-				for(int i=0;i<numSubmodules;i++) {
-					submodules[i].println(dataRow.get(i) + " " + dataRow.get(numSubmodules));
-				}
-				try {
-					dataRow = csv.getAllFieldsInLine();
-				} catch(EOFException eof) {
-					dataRow = null;
-				}
-			}
-			csv.close();
+
+			long threadId = Thread.currentThread().getId();
+			logger.log(Level.INFO, "[" + threadId + "]Training started");
+
+			long lastTrainedTime = 0L;
+			Classifier c = new Classifier();
+			c.trainMulti("data" + File.separator + "raw" + File.separator + module + ".airlraw", "data" + File.separator + "trained" + File.separator + module, submodules);
+
+			logger.log(Level.INFO, "[" + threadId + "]Training done");
+
+			lastTrainedTime = System.currentTimeMillis();
+			setLastTrained(module, lastTrainedTime);
+
+			return new StatusData(TCPUtil.Status.OK, String.valueOf(lastTrainedTime));
 		} catch(Exception e) {
 			e.printStackTrace();
 		} finally {
-			
-			for(int i=0;i<numSubmodules;i++) {
-				try {
-					submodules[i].close();
-				} catch(Exception ex) {
-					ex.printStackTrace();
-				}
-			}
+
 			try {
 				csv.close();
-				fReader.close();
 			} catch(Exception ex) {
 				ex.printStackTrace();
 			}
 		}
-		
-		long threadId = Thread.currentThread().getId();
-		logger.log(Level.INFO, "["+threadId+"]Training started");	
-		
-		long lastTrainedTime = 0L;
-		Classifier c = new Classifier();
-		
-		for(int i=0;i<numSubmodules;i++) {
-			c.train("data" + File.separator + "raw" + File.separator + module + "__" + headers.get(i) + ".airlraw", "data" + File.separator + "trained" + File.separator + module + "__" + headers.get(i) + ".airltrained");
-		}
-		
-		logger.log(Level.INFO, "["+threadId+"]Training done");
-		
-		lastTrainedTime = System.currentTimeMillis();
-		setLastTrained(module, lastTrainedTime);
-		
-		return new StatusData(TCPUtil.Status.OK, String.valueOf(lastTrainedTime));
+		return new StatusData(TCPUtil.Status.SERVER_ERROR, "Error training");
 	}
 
-	
 	public StatusData getLastTrained(File payload) {
 		
 		BufferedInputStream in = null;
@@ -226,10 +199,50 @@ public class ClassifierExecutor {
 				return new StatusData(TCPUtil.Status.NOT_TRAINED, "Not Trained");
 			}
 
-			String payloadData = TCPUtil.getPayload(in);
+			String payloadData[] = TCPUtil.getPayload(in).split(TCPUtil.FIELD_SEPARATOR);
 			Classifier c = new Classifier();
-			String prediction = c.predict(payloadData, "data" + File.separator + "trained" + File.separator + module + ".airltrained", TCPUtil.getServerProperty(module+".other"), FeedbackUtil.getInstance().getConfidenceScore(module));
+			String prediction = c.predict(payloadData[0], "data" + File.separator + "trained" + File.separator + module + ".airltrained", payloadData[1], FeedbackUtil.getInstance().getConfidenceScore(module));
 			return new StatusData(TCPUtil.Status.OK, prediction);
+		} catch(FileNotFoundException fnf) {
+			fnf.printStackTrace();
+			return new StatusData(TCPUtil.Status.SERVER_ERROR, "File not found");
+		} catch(IOException io) {
+			io.printStackTrace();
+			return new StatusData(TCPUtil.Status.SERVER_ERROR, "IO Error");
+		}
+	}
+	
+	public StatusData predictMultiCategories(File payload) {
+
+		try {
+
+			BufferedInputStream in = new BufferedInputStream(new FileInputStream(payload));
+			String module = TCPUtil.getStringModuleName(in);
+
+			if(getLastTrained(module) == 0L) {
+				return new StatusData(TCPUtil.Status.NOT_TRAINED, "Not Trained");
+			}
+
+			String payloadData = TCPUtil.getPayload(in);
+			int lineIndex = payloadData.indexOf("\r\n");
+			String submodulesStr = payloadData.substring(0, lineIndex);
+			int otherCategoriesIndex = payloadData.indexOf("\r\n", lineIndex + 1);
+			String otherCategoriesStr = payloadData.substring(lineIndex + 1, otherCategoriesIndex);
+			String data = payloadData.substring(otherCategoriesIndex + 1, payloadData.length());
+			
+			Classifier c = new Classifier();
+			HashMap<String, String> predictions = c.predictMulti(data, "data" + File.separator + "trained" + File.separator + module, submodulesStr.split(","), otherCategoriesStr.split(","), FeedbackUtil.getInstance().getConfidenceScore(module, submodulesStr.split(",")));
+
+			JSONObject predictionsJSON = new JSONObject();
+			for(Entry<String, String> prediction : predictions.entrySet()) {
+				
+				try {
+					predictionsJSON.put(prediction.getKey(), prediction.getValue());
+				} catch(JSONException jx) {
+					jx.printStackTrace();
+				}
+			}
+			return new StatusData(TCPUtil.Status.OK, predictionsJSON.toString());
 		} catch(FileNotFoundException fnf) {
 			fnf.printStackTrace();
 			return new StatusData(TCPUtil.Status.SERVER_ERROR, "File not found");
